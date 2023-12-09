@@ -36,6 +36,8 @@ parser.add_argument('--num_passes', default=10, type=int, help="number of passes
 parser.add_argument('--num_cycles', default=3, type=int, help="number of cycles per blocks (K)")
 parser.add_argument('--temp', default=3.0, type=float, help='temperature')
 parser.add_argument('--loss', default='contrastive', choices=['contrastive','mse', 'kl', 'cosine'], help="loss function for evolutionary search's fitness function")
+# argument add by brian1009
+parser.add_argument('--custom-weights', type=str, help='path to the customed pretrained weight')
 
 def str2model(name):
     d = {
@@ -87,6 +89,11 @@ def main():
 
     cfg = Config(args)
     model = str2model(args.model)(pretrained=True, cfg=cfg)
+    if args.custom_weights:
+        print(f"load pretrained weights of {args.model} from {args.custom_weights}")
+        weights = torch.load(args.custom_weights, map_location='cpu')['model']
+        info = model.load_state_dict(weights)
+        print(info)
     model = model.to(device)
 
     # Note: Different models have different strategies of data preprocessing.
